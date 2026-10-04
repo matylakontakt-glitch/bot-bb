@@ -38,6 +38,7 @@ function addCard(item,prepend=true){
   emptyEl.style.display="none";
   const node=tpl.content.cloneNode(true);
   const article=node.querySelector(".photo-card");
+  article.classList.add(item.orientation==="portrait"?"portrait":"landscape");
   const img=node.querySelector("img");
   img.src=item.url;
   img.loading="lazy";
@@ -80,9 +81,10 @@ showNewest.onclick=()=>{
 };
 
 async function compressImage(file){
-  if(!file.type.startsWith("image/")) return file;
-  if(file.type==="image/gif") return file;
+  if(!file.type.startsWith("image/")) return {file,orientation:"landscape"};
+  if(file.type==="image/gif") return {file,orientation:"landscape"};
   const bitmap=await createImageBitmap(file);
+  const orientation=bitmap.height>bitmap.width?"portrait":"landscape";
   const maxSide=1600;
   const scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
   const canvas=document.createElement("canvas");
@@ -92,8 +94,8 @@ async function compressImage(file){
   ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
   bitmap.close?.();
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.82));
-  if(!blob) return file;
-  return new File([blob],(file.name.replace(/\.[^.]+$/,"")||"zdjecie")+".jpg",{type:"image/jpeg"});
+  if(!blob) return {file,orientation};
+  return {file:new File([blob],(file.name.replace(/\.[^.]+$/,"")||"zdjecie")+".jpg",{type:"image/jpeg"}),orientation};
 }
 uploadForm.addEventListener("submit",async e=>{
   e.preventDefault();
@@ -103,9 +105,10 @@ uploadForm.addEventListener("submit",async e=>{
   const btn=uploadForm.querySelector("button[type=submit]");
   btn.disabled=true;
   try{
-    const compressed=await compressImage(original);
+    const prepared=await compressImage(original);
     const fd=new FormData();
-    fd.append("photo",compressed);
+    fd.append("photo",prepared.file);
+    fd.append("orientation",prepared.orientation);
     fd.append("nickname",uploadForm.elements.nickname?.value||"");
     fd.append("clientId",clientId);
     statusEl.textContent="Kula analizuje energię zdjęcia… ✦";
