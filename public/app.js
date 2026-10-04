@@ -9,8 +9,6 @@ const statusEl = document.getElementById("status");
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spinBtn");
 const spinAgain = document.getElementById("spinAgain");
-const wheelResult = document.getElementById("wheelResult");
-const resultCard = document.getElementById("resultCard");
 const popover = document.getElementById("taskPopover");
 const taskBig = document.getElementById("taskBig");
 
@@ -34,7 +32,6 @@ function addCard(item, prepend=true){
   node.querySelector(".who").textContent = "Dodane przez: " + item.nickname;
   if(prepend) galleryEl.prepend(node); else galleryEl.append(node);
 }
-
 socket.on("gallery:init", items => {
   galleryEl.innerHTML="";
   items.forEach(x => addCard(x,false));
@@ -65,17 +62,17 @@ uploadForm.addEventListener("submit", async e => {
 
 const wheelOptions = [
   "Patrzcie sobie w oczy przez 15 sekund. Kto pierwszy się roześmieje — przegrywa.",
-  "Każde z Was mówi jedną rzecz, za którą dziś lubi drugą osobę najbardziej.",
+  "Każde z Was mówi jedną rzecz, za którą dziś najbardziej lubi drugą osobę.",
   "Odtwórzcie miną moment, kiedy pierwszy raz się zobaczyliście.",
-  "Zatańczcie 20 sekund do muzyki, której… jeszcze nie słychać.",
+  "Zatańczcie 20 sekund do muzyki, której jeszcze nie słychać.",
   "Zróbcie zdjęcie jak para z okładki bardzo drogiego magazynu.",
   "Jedno z Was szepcze komplement. Drugie musi odpowiedzieć jeszcze lepszym.",
-  "Wybierzcie inną parę i zróbcie wspólne zdjęcie „jak po 20 latach przyjaźni”.",
+  "Wybierzcie inną parę i zróbcie wspólne zdjęcie jak po 20 latach przyjaźni.",
   "Powiedzcie równocześnie, kto częściej ma rację. Bez konsultacji.",
   "Jedno z Was wymyśla tytuł filmu o Waszym związku. Drugie dodaje slogan reklamowy.",
   "Przez 30 sekund zamieńcie się rolami i naśladujcie siebie nawzajem.",
-  "Wskażcie osobę na sali, z którą pojechalibyście spontanicznie na weekend.",
-  "Zróbcie najbardziej przesadnie romantyczną pozę do zdjęcia. Im gorzej, tym lepiej."
+  "Wypijcie po małym łyku tego, co macie w kieliszku lub szklance.",
+  "Wybierzcie drugą parę do wspólnego toastu i wznieście toast za najlepszą decyzję tego roku."
 ];
 
 const colors=["#5b167f","#8d2bb8","#3b0c53","#af58df","#6d178f","#c27af0","#47105e","#942ec1","#5a116f","#b660df","#351044","#7d219f"];
@@ -92,20 +89,17 @@ wheelOptions.forEach((_,i)=>{
 
 let rotation=0;
 function showTask(text){
-  wheelResult.textContent=text;
-  resultCard.classList.add("flash");
-  setTimeout(()=>resultCard.classList.remove("flash"),700);
   taskBig.textContent=text;
   popover.hidden=false;
+  document.body.classList.add("modal-open");
   requestAnimationFrame(()=>popover.classList.add("show"));
 }
 function closeTask(){
   popover.classList.remove("show");
+  document.body.classList.remove("modal-open");
   setTimeout(()=>popover.hidden=true,220);
 }
-document.getElementById("closeTask").onclick=closeTask;
 document.getElementById("doneTask").onclick=closeTask;
-popover.addEventListener("click",e=>{if(e.target===popover)closeTask();});
 
 function spinWheel(){
   if(spinBtn.disabled) return;
@@ -118,14 +112,13 @@ function spinWheel(){
   rotation += 1440 + delta;
   wheel.style.transform=`rotate(${rotation}deg)`;
   labels.style.transform=`rotate(${rotation}deg)`;
-  wheelResult.textContent="Koło wybiera…";
   setTimeout(()=>{
     showTask(wheelOptions[idx]);
     spinBtn.disabled=false;
   },4300);
 }
 spinBtn.onclick=spinWheel;
-spinAgain.onclick=spinWheel;
+spinAgain.onclick=()=>{closeTask(); setTimeout(spinWheel,260);};
 
 const fortunes = [
   ["Zielone światło","Dziś warto powiedzieć „tak” pierwszej dobrej okazji. Spontaniczna decyzja może dać Ci więcej radości niż długi plan.","szczęśliwy znak: ✦"],
@@ -150,10 +143,18 @@ const fortunes = [
   ["Magnetyczna aura","Masz dziś talent do przyciągania właściwych ludzi we właściwym momencie. Nie chowaj się w kącie.","szczęśliwy kolor: ametyst"]
 ];
 
+const daySel=document.getElementById("birthDay");
+for(let d=1;d<=31;d++){const o=document.createElement("option");o.value=String(d).padStart(2,"0");o.textContent=d;daySel.appendChild(o);}
+const yearSel=document.getElementById("birthYear");
+for(let y=new Date().getFullYear()-18;y>=1930;y--){const o=document.createElement("option");o.value=y;o.textContent=y;yearSel.appendChild(o);}
+
 document.getElementById("fortuneForm").addEventListener("submit",e=>{
   e.preventDefault();
-  const raw=document.getElementById("birthDate").value;
-  if(!raw)return;
+  const d=document.getElementById("birthDay").value;
+  const m=document.getElementById("birthMonth").value;
+  const y=document.getElementById("birthYear").value;
+  if(!d||!m||!y)return;
+  const raw=`${y}-${m}-${d}`;
   const today=new Date();
   const todayKey=`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
   const source=raw+"|"+todayKey;
