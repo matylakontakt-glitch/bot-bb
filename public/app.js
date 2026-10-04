@@ -8,10 +8,15 @@ const fileLabel = document.getElementById("fileLabel");
 const statusEl = document.getElementById("status");
 const wheel = document.getElementById("wheel");
 const spinBtn = document.getElementById("spinBtn");
+const spinAgain = document.getElementById("spinAgain");
 const wheelResult = document.getElementById("wheelResult");
+const resultCard = document.getElementById("resultCard");
+const popover = document.getElementById("taskPopover");
+const taskBig = document.getElementById("taskBig");
 
 document.getElementById("openUpload").onclick = () => document.getElementById("uploadPanel").scrollIntoView({behavior:"smooth"});
 document.getElementById("scrollWheel").onclick = () => document.getElementById("wheelSection").scrollIntoView({behavior:"smooth"});
+document.getElementById("scrollFortune").onclick = () => document.getElementById("fortuneSection").scrollIntoView({behavior:"smooth"});
 
 photoInput.addEventListener("change", () => {
   fileLabel.textContent = photoInput.files?.[0]?.name || "Wybierz zdjęcie";
@@ -50,7 +55,7 @@ uploadForm.addEventListener("submit", async e => {
     uploadForm.reset();
     fileLabel.textContent="Wybierz zdjęcie";
     statusEl.textContent="Gotowe — kadr trafił do kroniki ✦";
-    setTimeout(()=>document.getElementById("gallerySection").scrollIntoView({behavior:"smooth"}),500);
+    setTimeout(()=>document.getElementById("gallerySection").scrollIntoView({behavior:"smooth"}),450);
   } catch {
     statusEl.textContent="Nie udało się dodać zdjęcia. Spróbuj ponownie.";
   } finally {
@@ -59,24 +64,106 @@ uploadForm.addEventListener("submit", async e => {
 });
 
 const wheelOptions = [
-  "Zrób selfie z osobą w fiolecie",
-  "Nadaj komuś magiczny pseudonim",
-  "Wybierz duet do zdjęcia",
-  "Powiedz komuś komplement",
-  "Zatańcz przez 20 sekund",
-  "Łyk dowolnego napoju",
-  "Znajdź osobę spod tego samego znaku zodiaku",
-  "Zrób zdjęcie jak okładkę albumu"
+  "Patrzcie sobie w oczy przez 15 sekund. Kto pierwszy się roześmieje — przegrywa.",
+  "Każde z Was mówi jedną rzecz, za którą dziś lubi drugą osobę najbardziej.",
+  "Odtwórzcie miną moment, kiedy pierwszy raz się zobaczyliście.",
+  "Zatańczcie 20 sekund do muzyki, której… jeszcze nie słychać.",
+  "Zróbcie zdjęcie jak para z okładki bardzo drogiego magazynu.",
+  "Jedno z Was szepcze komplement. Drugie musi odpowiedzieć jeszcze lepszym.",
+  "Wybierzcie inną parę i zróbcie wspólne zdjęcie „jak po 20 latach przyjaźni”.",
+  "Powiedzcie równocześnie, kto częściej ma rację. Bez konsultacji.",
+  "Jedno z Was wymyśla tytuł filmu o Waszym związku. Drugie dodaje slogan reklamowy.",
+  "Przez 30 sekund zamieńcie się rolami i naśladujcie siebie nawzajem.",
+  "Wskażcie osobę na sali, z którą pojechalibyście spontanicznie na weekend.",
+  "Zróbcie najbardziej przesadnie romantyczną pozę do zdjęcia. Im gorzej, tym lepiej."
 ];
+
+const colors=["#5b167f","#8d2bb8","#3b0c53","#af58df","#6d178f","#c27af0","#47105e","#942ec1","#5a116f","#b660df","#351044","#7d219f"];
+wheel.style.background = `conic-gradient(${colors.map((c,i)=>`${c} ${i*30}deg ${(i+1)*30}deg`).join(",")})`;
+
+const labels=document.getElementById("wheelLabels");
+wheelOptions.forEach((_,i)=>{
+  const d=document.createElement("span");
+  d.textContent=i+1;
+  const angle=i*30+15;
+  d.style.transform=`rotate(${angle}deg) translateY(-185px) rotate(${-angle}deg)`;
+  labels.appendChild(d);
+});
+
 let rotation=0;
-spinBtn.onclick = () => {
+function showTask(text){
+  wheelResult.textContent=text;
+  resultCard.classList.add("flash");
+  setTimeout(()=>resultCard.classList.remove("flash"),700);
+  taskBig.textContent=text;
+  popover.hidden=false;
+  requestAnimationFrame(()=>popover.classList.add("show"));
+}
+function closeTask(){
+  popover.classList.remove("show");
+  setTimeout(()=>popover.hidden=true,220);
+}
+document.getElementById("closeTask").onclick=closeTask;
+document.getElementById("doneTask").onclick=closeTask;
+popover.addEventListener("click",e=>{if(e.target===popover)closeTask();});
+
+function spinWheel(){
+  if(spinBtn.disabled) return;
   spinBtn.disabled=true;
   const idx=Math.floor(Math.random()*wheelOptions.length);
-  rotation += 1440 + idx*45 + 22;
+  const segment=360/wheelOptions.length;
+  const targetCenter=idx*segment + segment/2;
+  const currentNorm=((rotation%360)+360)%360;
+  const delta=(360-targetCenter-currentNorm+360)%360;
+  rotation += 1440 + delta;
   wheel.style.transform=`rotate(${rotation}deg)`;
-  wheelResult.textContent="Koło wiruje…";
+  labels.style.transform=`rotate(${rotation}deg)`;
+  wheelResult.textContent="Koło wybiera…";
   setTimeout(()=>{
-    wheelResult.textContent=wheelOptions[idx];
+    showTask(wheelOptions[idx]);
     spinBtn.disabled=false;
   },4300);
-};
+}
+spinBtn.onclick=spinWheel;
+spinAgain.onclick=spinWheel;
+
+const fortunes = [
+  ["Zielone światło","Dziś warto powiedzieć „tak” pierwszej dobrej okazji. Spontaniczna decyzja może dać Ci więcej radości niż długi plan.","szczęśliwy znak: ✦"],
+  ["Powrót dobrej energii","Ktoś przypomni Ci dziś, dlaczego pewne relacje są warte pielęgnowania. Nie udawaj obojętności.","szczęśliwa liczba: 7"],
+  ["Wieczór niespodzianki","Plan może się lekko rozsypać — i bardzo dobrze. Najlepsza część dnia zacznie się przypadkiem.","szczęśliwy kolor: fiolet"],
+  ["Mały flirt z losem","Dziś przyciągasz uwagę bardziej niż zwykle. Użyj tego z wdziękiem, nie z instrukcją obsługi.","szczęśliwy znak: ☾"],
+  ["Dzień bez poprawiania świata","Nie wszystko trzeba dziś naprawiać. Jedna rzecz pozostawiona w spokoju sama ułoży się lepiej.","szczęśliwa liczba: 4"],
+  ["Telefon, który warto odebrać","Wiadomość lub rozmowa może zmienić ton dnia. Odpowiedz, nawet jeśli zwykle odkładasz to na później.","szczęśliwa godzina: 20:20"],
+  ["Powiedz to wprost","Ktoś czeka dziś na prostą odpowiedź. Szczerość z odrobiną humoru będzie Twoim najlepszym zaklęciem.","szczęśliwy kolor: złoto"],
+  ["Wieczór wspomnień","Stare zdjęcie, piosenka albo historia uruchomi dobry ciąg skojarzeń. Daj sobie chwilę nostalgii.","szczęśliwy znak: ✧"],
+  ["Zrób coś tylko dla siebie","Nie negocjuj dziś każdej przyjemności z kalendarzem. Mały luksus zrobi więcej dobrego, niż myślisz.","szczęśliwa liczba: 9"],
+  ["Ktoś Cię zaskoczy","Osoba, po której się tego nie spodziewasz, zrobi dziś coś bardzo w punkt. Zauważ to i powiedz o tym.","szczęśliwy kolor: śliwkowy"],
+  ["Odważniejszy krok","Masz dziś więcej odwagi niż cierpliwości — wykorzystaj to do jednej rzeczy, którą odkładasz od dawna.","szczęśliwy znak: ★"],
+  ["Dzień dobrego żartu","Humor rozbroi dziś napięcie szybciej niż argumenty. Jedna zabawna odpowiedź może uratować wieczór.","szczęśliwa liczba: 3"],
+  ["Chemia w powietrzu","Dziś szczególnie liczy się kontakt z ludźmi. Rozmowa przy stole może okazać się ciekawsza niż cały plan dnia.","szczęśliwy kolor: burgund"],
+  ["Nie analizuj za długo","Pierwsza intuicja będzie dziś trafniejsza niż piąta analiza. Zaufaj sobie trochę wcześniej.","szczęśliwa godzina: 21:11"],
+  ["Małe zwycięstwo","Coś, co ostatnio Cię irytowało, dziś wreszcie pójdzie po Twojej myśli. Celebruj nawet drobne sukcesy.","szczęśliwa liczba: 8"],
+  ["Ktoś mówi o Tobie dobrze","Twoje imię pojawi się dziś w rozmowie w bardzo dobrym kontekście. Nie musisz niczego udowadniać.","szczęśliwy znak: ☽"],
+  ["Zmiana planu działa na plus","Jeśli coś zostanie odwołane albo przesunięte, nie walcz z tym. Powstałe okno okaże się bardzo przyjemne.","szczęśliwy kolor: granat"],
+  ["Wieczór dla dwojga","Najlepszy moment dnia wydarzy się w małym gronie. Mniej ludzi, więcej prawdziwej rozmowy.","szczęśliwa liczba: 2"],
+  ["Dobra wiadomość","Dziś jest dzień na wiadomość, której się nie spodziewasz. Zanim odpowiesz, uśmiechnij się.","szczęśliwy znak: ✦"],
+  ["Magnetyczna aura","Masz dziś talent do przyciągania właściwych ludzi we właściwym momencie. Nie chowaj się w kącie.","szczęśliwy kolor: ametyst"]
+];
+
+document.getElementById("fortuneForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const raw=document.getElementById("birthDate").value;
+  if(!raw)return;
+  const today=new Date();
+  const todayKey=`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+  const source=raw+"|"+todayKey;
+  let hash=0;
+  for(let i=0;i<source.length;i++) hash=((hash<<5)-hash)+source.charCodeAt(i)|0;
+  const fortune=fortunes[Math.abs(hash)%fortunes.length];
+  document.getElementById("fortuneTitle").textContent=fortune[0];
+  document.getElementById("fortuneText").textContent=fortune[1];
+  document.getElementById("fortuneLucky").textContent=fortune[2];
+  const box=document.getElementById("fortuneResult");
+  box.hidden=false;
+  requestAnimationFrame(()=>box.classList.add("reveal"));
+});
