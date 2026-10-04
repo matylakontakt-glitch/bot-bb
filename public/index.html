@@ -13,126 +13,120 @@
 <body class="welcome-lock">
   <div class="stars"></div>
 
-  <div class="welcome-screen" id="welcomeScreen">
-    <div class="welcome-glow"></div>
+  <section class="welcome-screen" id="welcomeScreen" aria-label="Wejście do aplikacji">
+    <div class="welcome-rings"></div>
     <div class="welcome-content">
       <div class="welcome-mark">☾</div>
       <p class="eyebrow">ANDRZEJKOWA NOC</p>
       <h1>Wejdź do <span>świata magii</span></h1>
-      <p>Za tym progiem czekają wróżby, zdjęcia i pytania, które mogą powiedzieć o Was trochę za dużo.</p>
-      <div class="welcome-orb"><div>✦</div></div>
-      <button class="primary enter-btn" id="enterMagic">Przekrocz magiczny próg</button>
-      <small>Dotknij, aby wejść</small>
+      <p>Wróżby, zdjęcia i pytania, które mogą powiedzieć o Was trochę za dużo.</p>
+      <button class="magic-gate" id="enterMagic" type="button">
+        <span class="gate-orb">✦</span>
+        <span>Wejdź</span>
+      </button>
+      <small>Dotknij kuli</small>
     </div>
-  </div>
+  </section>
 
-  <header class="hero">
-    <div class="moon">☾</div>
-    <p class="eyebrow">ANDRZEJKOWA NOC</p>
-    <h1>Kula <span>Magii</span></h1>
-    <p class="lead">Zdjęcia, wróżby i „Kto z Was?” — trochę magii, trochę prawdy i dużo śmiechu.</p>
-    <div class="orb-wrap"><div class="orb"><div class="orb-core">✦</div></div><div class="orb-shadow"></div></div>
-    <div class="hero-actions">
-      <button class="primary" id="openUpload">✦ Dodaj zdjęcie</button>
-      <button class="ghost" id="scrollWho">♡ Kto z Was?</button>
-      <button class="ghost" id="scrollFortune">☾ Wróżba na dziś</button>
-    </div>
-  </header>
-
-  <main>
-    <section class="who-section panel" id="whoSection">
-      <div class="section-head">
-        <p class="eyebrow">GRA DLA DWOJGA</p>
-        <h2>Kto z Was?</h2>
-        <p class="muted">Wpiszcie imiona. Pojawią się pytania — wskazujecie osobę albo „oboje”. Bez punktów karnych, za to z dużą szansą na śmiech.</p>
+  <div class="app-shell app-hidden" id="appShell">
+    <header class="hero">
+      <div class="moon">☾</div>
+      <p class="eyebrow">ANDRZEJKOWA NOC</p>
+      <h1>Kula <span>Magii</span></h1>
+      <p class="lead">Wróżby, zdjęcia i „Kto z Was?” — trochę magii, trochę prawdy i dużo śmiechu.</p>
+      <div class="orb-wrap"><div class="orb"><div class="orb-core">✦</div></div><div class="orb-shadow"></div></div>
+      <div class="hero-actions">
+        <button class="primary" id="scrollWho">♡ Kto z Was?</button>
+        <button class="ghost" id="scrollFortune">☾ Wróżba na dziś</button>
+        <button class="ghost" id="openUpload">✦ Dodaj zdjęcie</button>
       </div>
+    </header>
 
-      <form id="whoSetup" class="who-setup">
-        <div class="name-grid">
-          <label><span>Osoba 1</span><input id="playerOne" maxlength="24" placeholder="np. Kasia" required /></label>
-          <label><span>Osoba 2</span><input id="playerTwo" maxlength="24" placeholder="np. Marek" required /></label>
+    <main>
+      <section class="who-section panel" id="whoSection">
+        <div class="section-head">
+          <p class="eyebrow">MAGICZNA TALIA</p>
+          <h2>Kto z Was?</h2>
+          <p class="muted">Bez imion, bez punktów. Losujesz pytanie i oboje wskazujecie tę osobę, do której pasuje bardziej.</p>
         </div>
-        <button class="primary wide" type="submit">Zaczynamy</button>
-      </form>
 
-      <div class="who-game" id="whoGame" hidden>
-        <div class="who-counter"><span id="questionNo">1</span> / <span id="questionTotal">60</span></div>
-        <div class="who-card" id="whoCard">
+        <div class="deck-stage" id="deckStage">
+          <div class="mini-card card-left">☾</div>
+          <div class="mini-card card-right">✦</div>
+          <button class="main-card" id="drawQuestion" type="button">
+            <span class="card-symbol">✧</span>
+            <strong>LOSUJ PYTANIE</strong>
+            <small>dotknij karty</small>
+          </button>
+        </div>
+
+        <div class="question-reveal" id="questionReveal" hidden>
           <span>KTO Z WAS…</span>
           <strong id="whoQuestion"></strong>
+          <button class="primary" id="nextQuestion" type="button">Losuj następne</button>
+          <small id="questionCount"></small>
         </div>
-        <div class="who-vote">
-          <button class="vote-btn" id="voteOne"></button>
-          <button class="vote-btn both" id="voteBoth">OBOJE</button>
-          <button class="vote-btn" id="voteTwo"></button>
-        </div>
-        <div class="who-score">
-          <div><span id="scoreOneName"></span><strong id="scoreOne">0</strong></div>
-          <div><span>Oboje</span><strong id="scoreBoth">0</strong></div>
-          <div><span id="scoreTwoName"></span><strong id="scoreTwo">0</strong></div>
-        </div>
-        <button class="ghost next-question" id="nextQuestion" type="button">Pomiń pytanie</button>
-      </div>
-    </section>
+      </section>
 
-    <section class="fortune-section panel" id="fortuneSection">
-      <div class="fortune-copy">
-        <p class="eyebrow">WRÓŻBA NA DZIŚ</p>
-        <h2>Co mówi dziś Twoja data?</h2>
-        <p class="muted">Podaj imię i datę urodzenia. Wróżba będzie przypisana właśnie do Ciebie i do dzisiejszego dnia.</p>
-      </div>
-      <form id="fortuneForm" class="fortune-form">
-        <label class="field-label" for="fortuneName">Imię</label>
-        <input id="fortuneName" class="fortune-name" maxlength="30" placeholder="Wpisz imię" required />
-        <span class="field-label">Data urodzenia</span>
-        <div class="date-grid">
-          <select id="birthDay" required aria-label="Dzień"><option value="">Dzień</option></select>
-          <select id="birthMonth" required aria-label="Miesiąc">
-            <option value="">Miesiąc</option>
-            <option value="01">Styczeń</option><option value="02">Luty</option><option value="03">Marzec</option>
-            <option value="04">Kwiecień</option><option value="05">Maj</option><option value="06">Czerwiec</option>
-            <option value="07">Lipiec</option><option value="08">Sierpień</option><option value="09">Wrzesień</option>
-            <option value="10">Październik</option><option value="11">Listopad</option><option value="12">Grudzień</option>
-          </select>
-          <select id="birthYear" required aria-label="Rok"><option value="">Rok</option></select>
+      <section class="fortune-section panel" id="fortuneSection">
+        <div class="fortune-copy">
+          <p class="eyebrow">WRÓŻBA NA DZIŚ</p>
+          <h2>Co mówi dziś Twoja data?</h2>
+          <p class="muted">Podaj imię i datę urodzenia. Ta wróżba będzie przypisana właśnie do Ciebie i do dzisiejszego dnia.</p>
         </div>
-        <button class="primary wide fortune-button" type="submit">Odkryj moją wróżbę</button>
-      </form>
-      <div class="fortune-result" id="fortuneResult" hidden>
-        <span>Twoja wróżba na dziś</span>
-        <strong id="fortuneTitle"></strong>
-        <p id="fortuneText"></p>
-        <div id="fortuneLucky"></div>
-      </div>
-    </section>
+        <form id="fortuneForm" class="fortune-form">
+          <label class="field-label" for="fortuneName">Imię</label>
+          <input id="fortuneName" class="fortune-name" maxlength="30" placeholder="np. Weronika" required />
+          <span class="field-label">Data urodzenia</span>
+          <div class="date-grid">
+            <select id="birthDay" required aria-label="Dzień"><option value="">Dzień</option></select>
+            <select id="birthMonth" required aria-label="Miesiąc">
+              <option value="">Miesiąc</option>
+              <option value="01">Styczeń</option><option value="02">Luty</option><option value="03">Marzec</option>
+              <option value="04">Kwiecień</option><option value="05">Maj</option><option value="06">Czerwiec</option>
+              <option value="07">Lipiec</option><option value="08">Sierpień</option><option value="09">Wrzesień</option>
+              <option value="10">Październik</option><option value="11">Listopad</option><option value="12">Grudzień</option>
+            </select>
+            <select id="birthYear" required aria-label="Rok"><option value="">Rok</option></select>
+          </div>
+          <button class="primary wide fortune-button" type="submit">Odkryj moją wróżbę</button>
+        </form>
+        <div class="fortune-result" id="fortuneResult" hidden>
+          <span>Twoja wróżba na dziś</span>
+          <strong id="fortuneTitle"></strong>
+          <p id="fortuneText"></p>
+          <div id="fortuneLucky"></div>
+        </div>
+      </section>
 
-    <section class="panel upload-panel" id="uploadPanel">
-      <div>
-        <p class="eyebrow">ODDAJ KADR MAGII</p>
-        <h2>Dodaj zdjęcie</h2>
-        <p class="muted">Zrób zdjęcie albo wybierz je z telefonu. Kula nada mu tytuł, komentarz i aurę.</p>
-      </div>
-      <form id="uploadForm">
-        <label class="dropzone">
-          <input id="photo" name="photo" type="file" accept="image/*" capture="environment" required />
-          <div>✧</div><strong id="fileLabel">Wybierz zdjęcie</strong><span>JPG, PNG lub WEBP do 10 MB</span>
-        </label>
-        <input class="nickname" name="nickname" maxlength="40" placeholder="Twój pseudonim (opcjonalnie)" />
-        <button class="primary wide" type="submit">Wyślij do magicznej kuli</button>
-        <p id="status"></p>
-      </form>
-    </section>
+      <section class="panel upload-panel" id="uploadPanel">
+        <div>
+          <p class="eyebrow">ODDAJ KADR MAGII</p>
+          <h2>Dodaj zdjęcie</h2>
+          <p class="muted">Zrób zdjęcie albo wybierz je z telefonu. Kula nada mu tytuł, komentarz i aurę.</p>
+        </div>
+        <form id="uploadForm">
+          <label class="dropzone">
+            <input id="photo" name="photo" type="file" accept="image/*" capture="environment" required />
+            <div>✧</div><strong id="fileLabel">Wybierz zdjęcie</strong><span>JPG, PNG lub WEBP do 10 MB</span>
+          </label>
+          <input class="nickname" name="nickname" maxlength="40" placeholder="Twój pseudonim (opcjonalnie)" />
+          <button class="primary wide" type="submit">Wyślij do magicznej kuli</button>
+          <p id="status"></p>
+        </form>
+      </section>
 
-    <section class="gallery-section" id="gallerySection">
-      <div class="section-head">
-        <p class="eyebrow">KRONIKA NOCY</p>
-        <h2>Magiczna galeria na żywo</h2>
-        <p class="muted">Nowe kadry pojawiają się tutaj automatycznie.</p>
-      </div>
-      <div class="gallery" id="gallery"></div>
-      <div class="empty" id="empty">Pierwszy kadr tej nocy jeszcze czeka na swoją magię ✦</div>
-    </section>
-  </main>
+      <section class="gallery-section" id="gallerySection">
+        <div class="section-head">
+          <p class="eyebrow">KRONIKA NOCY</p>
+          <h2>Magiczna galeria na żywo</h2>
+          <p class="muted">Nowe kadry pojawiają się tutaj automatycznie.</p>
+        </div>
+        <div class="gallery" id="gallery"></div>
+        <div class="empty" id="empty">Pierwszy kadr tej nocy jeszcze czeka na swoją magię ✦</div>
+      </section>
+    </main>
+  </div>
 
   <template id="cardTpl">
     <article class="photo-card">
