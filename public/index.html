@@ -16,7 +16,7 @@
     <div class="moon">☾</div>
     <p class="eyebrow">ANDRZEJKOWA NOC</p>
     <h1>Kula <span>Magii</span></h1>
-    <p class="lead">Wrzuć zdjęcie. Kula nada mu tytuł, aurę i dopisze je do kroniki tej nocy.</p>
+    <p class="lead">Zdjęcia, zadania dla par i wróżby na dziś. Trochę magii, trochę śmiechu i zero nudy.</p>
     <div class="orb-wrap">
       <div class="orb"><div class="orb-core">✦</div></div>
       <div class="orb-shadow"></div>
@@ -24,6 +24,7 @@
     <div class="hero-actions">
       <button class="primary" id="openUpload">✦ Dodaj zdjęcie</button>
       <button class="ghost" id="scrollWheel">⟳ Zakręć kołem</button>
+      <button class="ghost" id="scrollFortune">☾ Wróżba na dziś</button>
     </div>
   </header>
 
@@ -32,7 +33,7 @@
       <div>
         <p class="eyebrow">ODDAJ KADR MAGII</p>
         <h2>Dodaj zdjęcie</h2>
-        <p class="muted">Możesz zrobić je teraz albo wybrać z galerii telefonu.</p>
+        <p class="muted">Zrób zdjęcie albo wybierz je z telefonu. Kula nada mu tytuł, komentarz i aurę.</p>
       </div>
       <form id="uploadForm">
         <label class="dropzone" id="dropzone">
@@ -49,20 +50,42 @@
 
     <section class="wheel-section" id="wheelSection">
       <div class="section-head">
-        <p class="eyebrow">KOŁO PRZEZNACZENIA</p>
-        <h2>Zakręć i wykonaj zadanie</h2>
+        <p class="eyebrow">KOŁO DLA PAR</p>
+        <h2>Los wybiera. Wy wykonujecie.</h2>
+        <p class="muted">Zadania są lekkie, flirtujące i stworzone bardziej dla dorosłych niż dla kolonii.</p>
       </div>
       <div class="wheel-layout">
         <div class="wheel-stage">
-          <div class="pointer">▼</div>
+          <div class="pointer" aria-hidden="true">▼</div>
           <div class="wheel" id="wheel"></div>
+          <div class="wheel-labels" id="wheelLabels"></div>
           <button class="spin" id="spinBtn">ZAKRĘĆ</button>
         </div>
-        <div class="result-card">
-          <span>Twoje zadanie</span>
-          <strong id="wheelResult">Kula jeszcze milczy…</strong>
-          <p>Jedno pole zawiera łyk dowolnego napoju — bez presji i bez obowiązku alkoholu.</p>
+        <div class="result-card" id="resultCard">
+          <span>Wasze zadanie</span>
+          <strong id="wheelResult">Koło jeszcze nie wybrało…</strong>
+          <button class="ghost small-btn" id="spinAgain">Jeszcze raz</button>
         </div>
+      </div>
+    </section>
+
+    <section class="fortune-section panel" id="fortuneSection">
+      <div class="fortune-copy">
+        <p class="eyebrow">WRÓŻBA NA DZIŚ</p>
+        <h2>Co mówi dziś Twoja data?</h2>
+        <p class="muted">Wpisz datę urodzenia. Kula połączy ją z dzisiejszym dniem i wybierze Twoją wróżbę.</p>
+      </div>
+      <form id="fortuneForm" class="fortune-form">
+        <label>Data urodzenia
+          <input id="birthDate" type="date" required />
+        </label>
+        <button class="primary wide" type="submit">Odkryj wróżbę</button>
+      </form>
+      <div class="fortune-result" id="fortuneResult" hidden>
+        <span>Twoja wróżba na dziś</span>
+        <strong id="fortuneTitle"></strong>
+        <p id="fortuneText"></p>
+        <div id="fortuneLucky"></div>
       </div>
     </section>
 
@@ -76,6 +99,16 @@
       <div class="empty" id="empty">Pierwszy kadr tej nocy jeszcze czeka na swoją magię ✦</div>
     </section>
   </main>
+
+  <div class="task-popover" id="taskPopover" hidden>
+    <div class="task-popover-card">
+      <button class="close-pop" id="closeTask" aria-label="Zamknij">×</button>
+      <div class="task-symbol">✦</div>
+      <span>KOŁO WYBRAŁO</span>
+      <strong id="taskBig"></strong>
+      <button class="primary" id="doneTask">Bierzemy to!</button>
+    </div>
+  </div>
 
   <template id="cardTpl">
     <article class="photo-card">
