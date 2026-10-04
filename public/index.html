@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Andrzejkowa Kula Magii</title>
+  <meta name="theme-color" content="#09040f" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="stars"></div>
+  <header class="hero">
+    <div class="moon">☾</div>
+    <p class="eyebrow">ANDRZEJKOWA NOC</p>
+    <h1>Kula <span>Magii</span></h1>
+    <p class="lead">Wrzuć zdjęcie. Kula nada mu tytuł, aurę i dopisze je do kroniki tej nocy.</p>
+    <div class="orb-wrap">
+      <div class="orb"><div class="orb-core">✦</div></div>
+      <div class="orb-shadow"></div>
+    </div>
+    <div class="hero-actions">
+      <button class="primary" id="openUpload">✦ Dodaj zdjęcie</button>
+      <button class="ghost" id="scrollWheel">⟳ Zakręć kołem</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel upload-panel" id="uploadPanel">
+      <div>
+        <p class="eyebrow">ODDAJ KADR MAGII</p>
+        <h2>Dodaj zdjęcie</h2>
+        <p class="muted">Możesz zrobić je teraz albo wybrać z galerii telefonu.</p>
+      </div>
+      <form id="uploadForm">
+        <label class="dropzone" id="dropzone">
+          <input id="photo" name="photo" type="file" accept="image/*" capture="environment" required />
+          <div id="previewIcon">✧</div>
+          <strong id="fileLabel">Wybierz zdjęcie</strong>
+          <span>JPG, PNG lub WEBP do 10 MB</span>
+        </label>
+        <input class="nickname" name="nickname" maxlength="40" placeholder="Twój pseudonim (opcjonalnie)" />
+        <button class="primary wide" type="submit">Wyślij do magicznej kuli</button>
+        <p id="status"></p>
+      </form>
+    </section>
+
+    <section class="wheel-section" id="wheelSection">
+      <div class="section-head">
+        <p class="eyebrow">KOŁO PRZEZNACZENIA</p>
+        <h2>Zakręć i wykonaj zadanie</h2>
+      </div>
+      <div class="wheel-layout">
+        <div class="wheel-stage">
+          <div class="pointer">▼</div>
+          <div class="wheel" id="wheel"></div>
+          <button class="spin" id="spinBtn">ZAKRĘĆ</button>
+        </div>
+        <div class="result-card">
+          <span>Twoje zadanie</span>
+          <strong id="wheelResult">Kula jeszcze milczy…</strong>
+          <p>Jedno pole zawiera łyk dowolnego napoju — bez presji i bez obowiązku alkoholu.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="gallery-section" id="gallerySection">
+      <div class="section-head">
+        <p class="eyebrow">KRONIKA NOCY</p>
+        <h2>Magiczna galeria na żywo</h2>
+        <p class="muted">Nowe kadry pojawiają się tutaj automatycznie.</p>
+      </div>
+      <div class="gallery" id="gallery"></div>
+      <div class="empty" id="empty">Pierwszy kadr tej nocy jeszcze czeka na swoją magię ✦</div>
+    </section>
+  </main>
+
+  <template id="cardTpl">
+    <article class="photo-card">
+      <div class="photo-wrap"><img /></div>
+      <div class="card-body">
+        <div class="meta"><span class="aura"></span><span class="magic"></span></div>
+        <h3></h3>
+        <p class="comment"></p>
+        <small class="who"></small>
+      </div>
+    </article>
+  </template>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
