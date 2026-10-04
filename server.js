@@ -99,6 +99,7 @@ app.post("/api/photos", upload.single("photo"), async (req, res) => {
     url: "/uploads/" + req.file.filename,
     nickname: (req.body.nickname || "Tajemniczy Gość").slice(0, 40),
     clientId: (req.body.clientId || "").slice(0, 80),
+    orientation: req.body.orientation === "portrait" ? "portrait" : "landscape",
     createdAt: new Date().toISOString(),
     ...ai
   };
