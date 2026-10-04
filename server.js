@@ -5,11 +5,18 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 const PORT = process.env.PORT || 3000;
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_PUBLISHABLE_KEY,
+  { auth: { persistSession: false, autoRefreshToken: false } }
+);
 
 const uploadDir = path.join(process.cwd(), "uploads");
 fs.mkdirSync(uploadDir, { recursive: true });
@@ -26,10 +33,7 @@ const upload = multer({
   fileFilter: (_, file, cb) => cb(null, /^image\//.test(file.mimetype))
 });
 
-const gallery = [];
-
 app.use(express.json());
-app.use("/uploads", express.static(uploadDir));
 app.use(express.static("public"));
 
 function fallbackMagic() {
@@ -86,45 +90,96 @@ async function analyzeWithOpenAI(imagePath) {
   }
 }
 
-app.get("/api/photos", (req, res) => {
+function mapPhoto(row, clientId = "") {
+  return {
+    id: row.id,
+    url: row.public_url,
+    nickname: row.nickname,
+    title: row.title,
+    comment: row.comment,
+    aura: row.aura,
+    magic: row.magic,
+    orientation: row.orientation,
+    createdAt: row.created_at,
+    clientId
+  };
+}
+
+app.get("/api/photos", async (req, res) => {
   const limit = Math.min(Math.max(parseInt(req.query.limit || "60",10) || 60,1),100);
-  res.json(gallery.slice().reverse().slice(0,limit));
+  const { data, error } = await supabase
+    .from("photos")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) return res.status(500).json({ error: "Nie udało się pobrać galerii" });
+  res.json((data || []).map(row => mapPhoto(row)));
 });
 
 app.post("/api/photos", upload.single("photo"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Brak zdjęcia" });
+
+  const orientation = req.body.orientation === "portrait" ? "portrait" : "landscape";
+  const nickname = (req.body.nickname || "Tajemniczy Gość").slice(0, 40);
+  const clientId = (req.body.clientId || "").slice(0, 80);
   const ai = await analyzeWithOpenAI(req.file.path);
-  const item = {
-    id: crypto.randomUUID(),
-    url: "/uploads/" + req.file.filename,
-    nickname: (req.body.nickname || "Tajemniczy Gość").slice(0, 40),
-    clientId: (req.body.clientId || "").slice(0, 80),
-    orientation: req.body.orientation === "portrait" ? "portrait" : "landscape",
-    createdAt: new Date().toISOString(),
-    ...ai
-  };
-  gallery.push(item);
-  if (gallery.length > 500) gallery.splice(0, gallery.length - 500);
-  io.emit("photo:new", item);
-  res.json(item);
+
+  const ext = path.extname(req.file.originalname || "").toLowerCase() || ".jpg";
+  const safeExt = [".jpg",".jpeg",".png",".webp"].includes(ext) ? ext : ".jpg";
+  const storagePath = `event/${new Date().toISOString().slice(0,10)}/${Date.now()}-${crypto.randomBytes(6).toString("hex")}${safeExt}`;
+
+  try {
+    const buffer = fs.readFileSync(req.file.path);
+    const { error: uploadError } = await supabase.storage
+      .from("andrzejki-photos")
+      .upload(storagePath, buffer, {
+        contentType: req.file.mimetype || "image/jpeg",
+        cacheControl: "31536000",
+        upsert: false
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicData } = supabase.storage
+      .from("andrzejki-photos")
+      .getPublicUrl(storagePath);
+
+    const { data: inserted, error: insertError } = await supabase
+      .from("photos")
+      .insert({
+        storage_path: storagePath,
+        public_url: publicData.publicUrl,
+        nickname,
+        title: ai.title,
+        comment: ai.comment,
+        aura: ai.aura,
+        magic: ai.magic,
+        orientation
+      })
+      .select("*")
+      .single();
+
+    if (insertError) throw insertError;
+
+    const item = mapPhoto(inserted, clientId);
+    io.emit("photo:new", item);
+    res.json(item);
+  } catch (err) {
+    console.error("Photo persistence error:", err);
+    res.status(500).json({ error: "Nie udało się zapisać zdjęcia na stałe" });
+  } finally {
+    fs.unlink(req.file.path, () => {});
+  }
 });
 
-app.get("/api/wheel", (_, res) => {
-  const options = [
-    "Zrób selfie z osobą w fiolecie",
-    "Nadaj komuś magiczny pseudonim",
-    "Wybierz duet do zdjęcia",
-    "Powiedz komuś komplement",
-    "Zatańcz przez 20 sekund",
-    "Łyk dowolnego napoju",
-    "Znajdź osobę spod tego samego znaku zodiaku",
-    "Zrób zdjęcie w stylu okładki albumu"
-  ];
-  res.json({ options });
-});
-
-io.on("connection", socket => {
-  socket.emit("gallery:init", gallery.slice().reverse().slice(0,60));
+io.on("connection", async socket => {
+  const { data } = await supabase
+    .from("photos")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(60);
+  socket.emit("gallery:init", (data || []).map(row => mapPhoto(row)));
 });
 
 app.get("*", (_, res) => res.sendFile(path.join(process.cwd(), "public", "index.html")));
