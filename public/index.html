@@ -10,22 +10,102 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css" />
 </head>
-<body>
+<body class="welcome-lock">
   <div class="stars"></div>
+
+  <div class="welcome-screen" id="welcomeScreen">
+    <div class="welcome-glow"></div>
+    <div class="welcome-content">
+      <div class="welcome-mark">☾</div>
+      <p class="eyebrow">ANDRZEJKOWA NOC</p>
+      <h1>Wejdź do <span>świata magii</span></h1>
+      <p>Za tym progiem czekają wróżby, zdjęcia i pytania, które mogą powiedzieć o Was trochę za dużo.</p>
+      <div class="welcome-orb"><div>✦</div></div>
+      <button class="primary enter-btn" id="enterMagic">Przekrocz magiczny próg</button>
+      <small>Dotknij, aby wejść</small>
+    </div>
+  </div>
+
   <header class="hero">
     <div class="moon">☾</div>
     <p class="eyebrow">ANDRZEJKOWA NOC</p>
     <h1>Kula <span>Magii</span></h1>
-    <p class="lead">Zdjęcia, zadania dla par i wróżby na dziś. Trochę magii, trochę śmiechu i zero nudy.</p>
+    <p class="lead">Zdjęcia, wróżby i „Kto z Was?” — trochę magii, trochę prawdy i dużo śmiechu.</p>
     <div class="orb-wrap"><div class="orb"><div class="orb-core">✦</div></div><div class="orb-shadow"></div></div>
     <div class="hero-actions">
       <button class="primary" id="openUpload">✦ Dodaj zdjęcie</button>
-      <button class="ghost" id="scrollWheel">⟳ Zakręć kołem</button>
+      <button class="ghost" id="scrollWho">♡ Kto z Was?</button>
       <button class="ghost" id="scrollFortune">☾ Wróżba na dziś</button>
     </div>
   </header>
 
   <main>
+    <section class="who-section panel" id="whoSection">
+      <div class="section-head">
+        <p class="eyebrow">GRA DLA DWOJGA</p>
+        <h2>Kto z Was?</h2>
+        <p class="muted">Wpiszcie imiona. Pojawią się pytania — wskazujecie osobę albo „oboje”. Bez punktów karnych, za to z dużą szansą na śmiech.</p>
+      </div>
+
+      <form id="whoSetup" class="who-setup">
+        <div class="name-grid">
+          <label><span>Osoba 1</span><input id="playerOne" maxlength="24" placeholder="np. Kasia" required /></label>
+          <label><span>Osoba 2</span><input id="playerTwo" maxlength="24" placeholder="np. Marek" required /></label>
+        </div>
+        <button class="primary wide" type="submit">Zaczynamy</button>
+      </form>
+
+      <div class="who-game" id="whoGame" hidden>
+        <div class="who-counter"><span id="questionNo">1</span> / <span id="questionTotal">60</span></div>
+        <div class="who-card" id="whoCard">
+          <span>KTO Z WAS…</span>
+          <strong id="whoQuestion"></strong>
+        </div>
+        <div class="who-vote">
+          <button class="vote-btn" id="voteOne"></button>
+          <button class="vote-btn both" id="voteBoth">OBOJE</button>
+          <button class="vote-btn" id="voteTwo"></button>
+        </div>
+        <div class="who-score">
+          <div><span id="scoreOneName"></span><strong id="scoreOne">0</strong></div>
+          <div><span>Oboje</span><strong id="scoreBoth">0</strong></div>
+          <div><span id="scoreTwoName"></span><strong id="scoreTwo">0</strong></div>
+        </div>
+        <button class="ghost next-question" id="nextQuestion" type="button">Pomiń pytanie</button>
+      </div>
+    </section>
+
+    <section class="fortune-section panel" id="fortuneSection">
+      <div class="fortune-copy">
+        <p class="eyebrow">WRÓŻBA NA DZIŚ</p>
+        <h2>Co mówi dziś Twoja data?</h2>
+        <p class="muted">Podaj imię i datę urodzenia. Wróżba będzie przypisana właśnie do Ciebie i do dzisiejszego dnia.</p>
+      </div>
+      <form id="fortuneForm" class="fortune-form">
+        <label class="field-label" for="fortuneName">Imię</label>
+        <input id="fortuneName" class="fortune-name" maxlength="30" placeholder="Wpisz imię" required />
+        <span class="field-label">Data urodzenia</span>
+        <div class="date-grid">
+          <select id="birthDay" required aria-label="Dzień"><option value="">Dzień</option></select>
+          <select id="birthMonth" required aria-label="Miesiąc">
+            <option value="">Miesiąc</option>
+            <option value="01">Styczeń</option><option value="02">Luty</option><option value="03">Marzec</option>
+            <option value="04">Kwiecień</option><option value="05">Maj</option><option value="06">Czerwiec</option>
+            <option value="07">Lipiec</option><option value="08">Sierpień</option><option value="09">Wrzesień</option>
+            <option value="10">Październik</option><option value="11">Listopad</option><option value="12">Grudzień</option>
+          </select>
+          <select id="birthYear" required aria-label="Rok"><option value="">Rok</option></select>
+        </div>
+        <button class="primary wide fortune-button" type="submit">Odkryj moją wróżbę</button>
+      </form>
+      <div class="fortune-result" id="fortuneResult" hidden>
+        <span>Twoja wróżba na dziś</span>
+        <strong id="fortuneTitle"></strong>
+        <p id="fortuneText"></p>
+        <div id="fortuneLucky"></div>
+      </div>
+    </section>
+
     <section class="panel upload-panel" id="uploadPanel">
       <div>
         <p class="eyebrow">ODDAJ KADR MAGII</p>
@@ -43,49 +123,6 @@
       </form>
     </section>
 
-    <section class="wheel-section" id="wheelSection">
-      <div class="section-head">
-        <p class="eyebrow">KOŁO DLA PAR</p>
-        <h2>Los wybiera. Wy wykonujecie.</h2>
-        <p class="muted">Jedno zakręcenie, jedno zadanie. Bez podglądania.</p>
-      </div>
-      <div class="wheel-stage">
-        <div class="pointer" aria-hidden="true">▼</div>
-        <div class="wheel" id="wheel"></div>
-        <div class="wheel-labels" id="wheelLabels"></div>
-        <button class="spin" id="spinBtn" type="button">ZAKRĘĆ</button>
-      </div>
-    </section>
-
-    <section class="fortune-section panel" id="fortuneSection">
-      <div class="fortune-copy">
-        <p class="eyebrow">WRÓŻBA NA DZIŚ</p>
-        <h2>Co mówi dziś Twoja data?</h2>
-        <p class="muted">Wybierz datę urodzenia. Kula połączy ją z dzisiejszym dniem i wybierze Twoją wróżbę.</p>
-      </div>
-      <form id="fortuneForm" class="fortune-form">
-        <span class="field-label">Data urodzenia</span>
-        <div class="date-grid">
-          <select id="birthDay" required aria-label="Dzień"><option value="">Dzień</option></select>
-          <select id="birthMonth" required aria-label="Miesiąc">
-            <option value="">Miesiąc</option>
-            <option value="01">Styczeń</option><option value="02">Luty</option><option value="03">Marzec</option>
-            <option value="04">Kwiecień</option><option value="05">Maj</option><option value="06">Czerwiec</option>
-            <option value="07">Lipiec</option><option value="08">Sierpień</option><option value="09">Wrzesień</option>
-            <option value="10">Październik</option><option value="11">Listopad</option><option value="12">Grudzień</option>
-          </select>
-          <select id="birthYear" required aria-label="Rok"><option value="">Rok</option></select>
-        </div>
-        <button class="primary wide" type="submit">Odkryj wróżbę</button>
-      </form>
-      <div class="fortune-result" id="fortuneResult" hidden>
-        <span>Twoja wróżba na dziś</span>
-        <strong id="fortuneTitle"></strong>
-        <p id="fortuneText"></p>
-        <div id="fortuneLucky"></div>
-      </div>
-    </section>
-
     <section class="gallery-section" id="gallerySection">
       <div class="section-head">
         <p class="eyebrow">KRONIKA NOCY</p>
@@ -96,18 +133,6 @@
       <div class="empty" id="empty">Pierwszy kadr tej nocy jeszcze czeka na swoją magię ✦</div>
     </section>
   </main>
-
-  <div class="task-popover" id="taskPopover" hidden>
-    <div class="task-popover-card">
-      <div class="task-symbol">✦</div>
-      <span>KOŁO WYBRAŁO</span>
-      <strong id="taskBig"></strong>
-      <div class="task-actions">
-        <button class="primary" id="doneTask" type="button">Robimy!</button>
-        <button class="ghost" id="spinAgain" type="button">Jeszcze raz</button>
-      </div>
-    </div>
-  </div>
 
   <template id="cardTpl">
     <article class="photo-card">
