@@ -6,14 +6,16 @@ const uploadForm = document.getElementById("uploadForm");
 const photoInput = document.getElementById("photo");
 const fileLabel = document.getElementById("fileLabel");
 const statusEl = document.getElementById("status");
-const wheel = document.getElementById("wheel");
-const spinBtn = document.getElementById("spinBtn");
-const spinAgain = document.getElementById("spinAgain");
-const popover = document.getElementById("taskPopover");
-const taskBig = document.getElementById("taskBig");
+
+document.getElementById("enterMagic").onclick = () => {
+  const screen=document.getElementById("welcomeScreen");
+  screen.classList.add("leave");
+  document.body.classList.remove("welcome-lock");
+  setTimeout(()=>screen.remove(),750);
+};
 
 document.getElementById("openUpload").onclick = () => document.getElementById("uploadPanel").scrollIntoView({behavior:"smooth"});
-document.getElementById("scrollWheel").onclick = () => document.getElementById("wheelSection").scrollIntoView({behavior:"smooth"});
+document.getElementById("scrollWho").onclick = () => document.getElementById("whoSection").scrollIntoView({behavior:"smooth"});
 document.getElementById("scrollFortune").onclick = () => document.getElementById("fortuneSection").scrollIntoView({behavior:"smooth"});
 
 photoInput.addEventListener("change", () => {
@@ -60,65 +62,126 @@ uploadForm.addEventListener("submit", async e => {
   }
 });
 
-const wheelOptions = [
-  "Patrzcie sobie w oczy przez 15 sekund. Kto pierwszy się roześmieje — przegrywa.",
-  "Każde z Was mówi jedną rzecz, za którą dziś najbardziej lubi drugą osobę.",
-  "Odtwórzcie miną moment, kiedy pierwszy raz się zobaczyliście.",
-  "Zatańczcie 20 sekund do muzyki, której jeszcze nie słychać.",
-  "Zróbcie zdjęcie jak para z okładki bardzo drogiego magazynu.",
-  "Jedno z Was szepcze komplement. Drugie musi odpowiedzieć jeszcze lepszym.",
-  "Wybierzcie inną parę i zróbcie wspólne zdjęcie jak po 20 latach przyjaźni.",
-  "Powiedzcie równocześnie, kto częściej ma rację. Bez konsultacji.",
-  "Jedno z Was wymyśla tytuł filmu o Waszym związku. Drugie dodaje slogan reklamowy.",
-  "Przez 30 sekund zamieńcie się rolami i naśladujcie siebie nawzajem.",
-  "Wypijcie po małym łyku tego, co macie w kieliszku lub szklance.",
-  "Wybierzcie drugą parę do wspólnego toastu i wznieście toast za najlepszą decyzję tego roku."
+const whoQuestions = [
+  "kto częściej mówi „zaraz” i ma na myśli co najmniej pół godziny?",
+  "kto pierwszy zauważa, że w domu skończyła się kawa?",
+  "kto częściej kupuje coś, czego absolutnie nie planował kupić?",
+  "kto lepiej pamięta daty, rocznice i urodziny?",
+  "kto częściej mówi „nic mi nie jest”, kiedy ewidentnie coś jest?",
+  "kto szybciej zasypia podczas filmu?",
+  "kto częściej wybiera restaurację, a potem zamawia to samo co zawsze?",
+  "kto lepiej udaje, że słucha instrukcji obsługi?",
+  "kto częściej mówi „nie jestem głodny/a”, a potem podjada z talerza drugiej osoby?",
+  "kto miałby większą szansę wygrać teleturniej?",
+  "kto częściej rozpoczyna rozmowę z obcymi ludźmi?",
+  "kto lepiej radzi sobie z pakowaniem walizki?",
+  "kto najdłużej wybiera, co obejrzeć wieczorem?",
+  "kto częściej mówi „a nie mówiłem/am”?",
+  "kto szybciej wybacza po sprzeczce?",
+  "kto częściej ma ostatnie słowo?",
+  "kto bardziej lubi niespodzianki?",
+  "kto częściej sprawdza prognozę pogody, zanim wyjdzie z domu?",
+  "kto lepiej pamięta pierwszą randkę?",
+  "kto częściej robi zdjęcia na wyjazdach?",
+  "kto ma większy talent do zgubienia telefonu we własnym domu?",
+  "kto szybciej zaprzyjaźniłby się z sąsiadami na wakacjach?",
+  "kto częściej mówi „to tylko pięć minut drogi” i kompletnie się myli?",
+  "kto bardziej lubi planować wszystko z wyprzedzeniem?",
+  "kto częściej zmienia zdanie w ostatniej chwili?",
+  "kto byłby lepszym detektywem?",
+  "kto lepiej zachowuje pokerową twarz?",
+  "kto częściej śmieje się w najmniej odpowiednim momencie?",
+  "kto ma więcej cierpliwości do technologii?",
+  "kto pierwszy zaproponowałby spontaniczny weekend bez planu?",
+  "kto bardziej przeżywa finał serialu?",
+  "kto częściej wraca do sklepu po coś, czego zapomniał?",
+  "kto ma większy talent do znajdowania promocji?",
+  "kto częściej mówi „nie potrzebujemy tego”, a potem sam/a z tego korzysta?",
+  "kto lepiej pamięta, gdzie coś zostało odłożone?",
+  "kto dłużej potrafi się nie odzywać po sprzeczce?",
+  "kto pierwszy zaczyna się śmiać podczas poważnej rozmowy?",
+  "kto lepiej tańczy, kiedy myśli, że nikt nie patrzy?",
+  "kto częściej ma rację co do ludzi po pierwszym spotkaniu?",
+  "kto szybciej zdecydowałby się na przeprowadzkę do innego kraju?",
+  "kto częściej przejmuje pilota do telewizora?",
+  "kto lepiej radzi sobie z improwizacją?",
+  "kto częściej mówi „ja tylko zerknę” i znika w telefonie na 20 minut?",
+  "kto szybciej poznałby wszystkich na tej imprezie?",
+  "kto bardziej przejmuje się tym, co powiedzą inni?",
+  "kto pierwszy zadzwoniłby po pomoc, gdyby auto odmówiło współpracy?",
+  "kto częściej próbuje naprawić coś samodzielnie zamiast czytać instrukcję?",
+  "kto ma lepszą pamięć do twarzy?",
+  "kto szybciej zorientuje się, że ktoś flirtuje?",
+  "kto częściej zamawia deser mimo słów „ja już nic nie zmieszczę”?",
+  "kto pierwszy powiedziałby „jedziemy!” na spontaniczny wyjazd?",
+  "kto lepiej pamięta teksty starych piosenek?",
+  "kto częściej ma tajny zapas słodyczy?",
+  "kto szybciej przekona drugą osobę do swojego pomysłu?",
+  "kto częściej mówi „zostaw, ja to zrobię”?",
+  "kto bardziej lubi być w centrum uwagi?",
+  "kto pierwszy zauważa, że druga osoba ma gorszy dzień?",
+  "kto częściej robi dobrą minę do złej gry?",
+  "kto lepiej zna drugą osobę niż ona sama siebie?",
+  "kto po tej imprezie będzie miał więcej historii do opowiadania?"
 ];
 
-const colors=["#5b167f","#8d2bb8","#3b0c53","#af58df","#6d178f","#c27af0","#47105e","#942ec1","#5a116f","#b660df","#351044","#7d219f"];
-wheel.style.background = `conic-gradient(${colors.map((c,i)=>`${c} ${i*30}deg ${(i+1)*30}deg`).join(",")})`;
+let whoState={p1:"",p2:"",order:[],index:0,s1:0,s2:0,both:0};
 
-const labels=document.getElementById("wheelLabels");
-wheelOptions.forEach((_,i)=>{
-  const d=document.createElement("span");
-  d.textContent=i+1;
-  const angle=i*30+15;
-  d.style.transform=`rotate(${angle}deg) translateY(-185px) rotate(${-angle}deg)`;
-  labels.appendChild(d);
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function renderQuestion(){
+  if(whoState.index>=whoState.order.length){
+    document.getElementById("whoQuestion").textContent="Koniec talii. Chyba wiecie o sobie już trochę za dużo.";
+    document.getElementById("questionNo").textContent=whoState.order.length;
+    return;
+  }
+  const card=document.getElementById("whoCard");
+  card.classList.remove("flip-in");
+  void card.offsetWidth;
+  card.classList.add("flip-in");
+  document.getElementById("whoQuestion").textContent=whoState.order[whoState.index];
+  document.getElementById("questionNo").textContent=whoState.index+1;
+}
+function updateScore(){
+  document.getElementById("scoreOne").textContent=whoState.s1;
+  document.getElementById("scoreTwo").textContent=whoState.s2;
+  document.getElementById("scoreBoth").textContent=whoState.both;
+}
+function answer(type){
+  if(type==="one") whoState.s1++;
+  if(type==="two") whoState.s2++;
+  if(type==="both") whoState.both++;
+  updateScore();
+  whoState.index++;
+  renderQuestion();
+}
+
+document.getElementById("whoSetup").addEventListener("submit",e=>{
+  e.preventDefault();
+  const p1=document.getElementById("playerOne").value.trim();
+  const p2=document.getElementById("playerTwo").value.trim();
+  if(!p1||!p2)return;
+  whoState={p1,p2,order:shuffle(whoQuestions),index:0,s1:0,s2:0,both:0};
+  document.getElementById("voteOne").textContent=p1;
+  document.getElementById("voteTwo").textContent=p2;
+  document.getElementById("scoreOneName").textContent=p1;
+  document.getElementById("scoreTwoName").textContent=p2;
+  document.getElementById("questionTotal").textContent=whoQuestions.length;
+  document.getElementById("whoSetup").hidden=true;
+  document.getElementById("whoGame").hidden=false;
+  updateScore();
+  renderQuestion();
 });
-
-let rotation=0;
-function showTask(text){
-  taskBig.textContent=text;
-  popover.hidden=false;
-  document.body.classList.add("modal-open");
-  requestAnimationFrame(()=>popover.classList.add("show"));
-}
-function closeTask(){
-  popover.classList.remove("show");
-  document.body.classList.remove("modal-open");
-  setTimeout(()=>popover.hidden=true,220);
-}
-document.getElementById("doneTask").onclick=closeTask;
-
-function spinWheel(){
-  if(spinBtn.disabled) return;
-  spinBtn.disabled=true;
-  const idx=Math.floor(Math.random()*wheelOptions.length);
-  const segment=360/wheelOptions.length;
-  const targetCenter=idx*segment + segment/2;
-  const currentNorm=((rotation%360)+360)%360;
-  const delta=(360-targetCenter-currentNorm+360)%360;
-  rotation += 1440 + delta;
-  wheel.style.transform=`rotate(${rotation}deg)`;
-  labels.style.transform=`rotate(${rotation}deg)`;
-  setTimeout(()=>{
-    showTask(wheelOptions[idx]);
-    spinBtn.disabled=false;
-  },4300);
-}
-spinBtn.onclick=spinWheel;
-spinAgain.onclick=()=>{closeTask(); setTimeout(spinWheel,260);};
+document.getElementById("voteOne").onclick=()=>answer("one");
+document.getElementById("voteTwo").onclick=()=>answer("two");
+document.getElementById("voteBoth").onclick=()=>answer("both");
+document.getElementById("nextQuestion").onclick=()=>{whoState.index++;renderQuestion();};
 
 const fortunes = [
   ["Zielone światło","Dziś warto powiedzieć „tak” pierwszej dobrej okazji. Spontaniczna decyzja może dać Ci więcej radości niż długi plan.","szczęśliwy znak: ✦"],
@@ -150,18 +213,19 @@ for(let y=new Date().getFullYear()-18;y>=1930;y--){const o=document.createElemen
 
 document.getElementById("fortuneForm").addEventListener("submit",e=>{
   e.preventDefault();
+  const name=document.getElementById("fortuneName").value.trim();
   const d=document.getElementById("birthDay").value;
   const m=document.getElementById("birthMonth").value;
   const y=document.getElementById("birthYear").value;
-  if(!d||!m||!y)return;
+  if(!name||!d||!m||!y)return;
   const raw=`${y}-${m}-${d}`;
   const today=new Date();
   const todayKey=`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
-  const source=raw+"|"+todayKey;
+  const source=(name.toLowerCase()+"|"+raw+"|"+todayKey);
   let hash=0;
   for(let i=0;i<source.length;i++) hash=((hash<<5)-hash)+source.charCodeAt(i)|0;
   const fortune=fortunes[Math.abs(hash)%fortunes.length];
-  document.getElementById("fortuneTitle").textContent=fortune[0];
+  document.getElementById("fortuneTitle").textContent=name+", "+fortune[0].toLowerCase();
   document.getElementById("fortuneText").textContent=fortune[1];
   document.getElementById("fortuneLucky").textContent=fortune[2];
   const box=document.getElementById("fortuneResult");
