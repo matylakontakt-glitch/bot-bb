@@ -86,7 +86,10 @@ async function analyzeWithOpenAI(imagePath) {
   }
 }
 
-app.get("/api/photos", (_, res) => res.json(gallery.slice().reverse()));
+app.get("/api/photos", (req, res) => {
+  const limit = Math.min(Math.max(parseInt(req.query.limit || "60",10) || 60,1),100);
+  res.json(gallery.slice().reverse().slice(0,limit));
+});
 
 app.post("/api/photos", upload.single("photo"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "Brak zdjęcia" });
@@ -95,10 +98,12 @@ app.post("/api/photos", upload.single("photo"), async (req, res) => {
     id: crypto.randomUUID(),
     url: "/uploads/" + req.file.filename,
     nickname: (req.body.nickname || "Tajemniczy Gość").slice(0, 40),
+    clientId: (req.body.clientId || "").slice(0, 80),
     createdAt: new Date().toISOString(),
     ...ai
   };
   gallery.push(item);
+  if (gallery.length > 500) gallery.splice(0, gallery.length - 500);
   io.emit("photo:new", item);
   res.json(item);
 });
@@ -118,7 +123,7 @@ app.get("/api/wheel", (_, res) => {
 });
 
 io.on("connection", socket => {
-  socket.emit("gallery:init", gallery.slice().reverse());
+  socket.emit("gallery:init", gallery.slice().reverse().slice(0,60));
 });
 
 app.get("*", (_, res) => res.sendFile(path.join(process.cwd(), "public", "index.html")));
