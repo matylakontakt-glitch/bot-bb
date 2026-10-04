@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Andrzejkowa Kula Magii</title>
   <meta name="theme-color" content="#09040f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,10 +17,7 @@
     <p class="eyebrow">ANDRZEJKOWA NOC</p>
     <h1>Kula <span>Magii</span></h1>
     <p class="lead">Zdjęcia, zadania dla par i wróżby na dziś. Trochę magii, trochę śmiechu i zero nudy.</p>
-    <div class="orb-wrap">
-      <div class="orb"><div class="orb-core">✦</div></div>
-      <div class="orb-shadow"></div>
-    </div>
+    <div class="orb-wrap"><div class="orb"><div class="orb-core">✦</div></div><div class="orb-shadow"></div></div>
     <div class="hero-actions">
       <button class="primary" id="openUpload">✦ Dodaj zdjęcie</button>
       <button class="ghost" id="scrollWheel">⟳ Zakręć kołem</button>
@@ -36,11 +33,9 @@
         <p class="muted">Zrób zdjęcie albo wybierz je z telefonu. Kula nada mu tytuł, komentarz i aurę.</p>
       </div>
       <form id="uploadForm">
-        <label class="dropzone" id="dropzone">
+        <label class="dropzone">
           <input id="photo" name="photo" type="file" accept="image/*" capture="environment" required />
-          <div id="previewIcon">✧</div>
-          <strong id="fileLabel">Wybierz zdjęcie</strong>
-          <span>JPG, PNG lub WEBP do 10 MB</span>
+          <div>✧</div><strong id="fileLabel">Wybierz zdjęcie</strong><span>JPG, PNG lub WEBP do 10 MB</span>
         </label>
         <input class="nickname" name="nickname" maxlength="40" placeholder="Twój pseudonim (opcjonalnie)" />
         <button class="primary wide" type="submit">Wyślij do magicznej kuli</button>
@@ -52,20 +47,13 @@
       <div class="section-head">
         <p class="eyebrow">KOŁO DLA PAR</p>
         <h2>Los wybiera. Wy wykonujecie.</h2>
-        <p class="muted">Zadania są lekkie, flirtujące i stworzone bardziej dla dorosłych niż dla kolonii.</p>
+        <p class="muted">Jedno zakręcenie, jedno zadanie. Bez podglądania.</p>
       </div>
-      <div class="wheel-layout">
-        <div class="wheel-stage">
-          <div class="pointer" aria-hidden="true">▼</div>
-          <div class="wheel" id="wheel"></div>
-          <div class="wheel-labels" id="wheelLabels"></div>
-          <button class="spin" id="spinBtn">ZAKRĘĆ</button>
-        </div>
-        <div class="result-card" id="resultCard">
-          <span>Wasze zadanie</span>
-          <strong id="wheelResult">Koło jeszcze nie wybrało…</strong>
-          <button class="ghost small-btn" id="spinAgain">Jeszcze raz</button>
-        </div>
+      <div class="wheel-stage">
+        <div class="pointer" aria-hidden="true">▼</div>
+        <div class="wheel" id="wheel"></div>
+        <div class="wheel-labels" id="wheelLabels"></div>
+        <button class="spin" id="spinBtn" type="button">ZAKRĘĆ</button>
       </div>
     </section>
 
@@ -73,12 +61,21 @@
       <div class="fortune-copy">
         <p class="eyebrow">WRÓŻBA NA DZIŚ</p>
         <h2>Co mówi dziś Twoja data?</h2>
-        <p class="muted">Wpisz datę urodzenia. Kula połączy ją z dzisiejszym dniem i wybierze Twoją wróżbę.</p>
+        <p class="muted">Wybierz datę urodzenia. Kula połączy ją z dzisiejszym dniem i wybierze Twoją wróżbę.</p>
       </div>
       <form id="fortuneForm" class="fortune-form">
-        <label>Data urodzenia
-          <input id="birthDate" type="date" required />
-        </label>
+        <span class="field-label">Data urodzenia</span>
+        <div class="date-grid">
+          <select id="birthDay" required aria-label="Dzień"><option value="">Dzień</option></select>
+          <select id="birthMonth" required aria-label="Miesiąc">
+            <option value="">Miesiąc</option>
+            <option value="01">Styczeń</option><option value="02">Luty</option><option value="03">Marzec</option>
+            <option value="04">Kwiecień</option><option value="05">Maj</option><option value="06">Czerwiec</option>
+            <option value="07">Lipiec</option><option value="08">Sierpień</option><option value="09">Wrzesień</option>
+            <option value="10">Październik</option><option value="11">Listopad</option><option value="12">Grudzień</option>
+          </select>
+          <select id="birthYear" required aria-label="Rok"><option value="">Rok</option></select>
+        </div>
         <button class="primary wide" type="submit">Odkryj wróżbę</button>
       </form>
       <div class="fortune-result" id="fortuneResult" hidden>
@@ -102,23 +99,20 @@
 
   <div class="task-popover" id="taskPopover" hidden>
     <div class="task-popover-card">
-      <button class="close-pop" id="closeTask" aria-label="Zamknij">×</button>
       <div class="task-symbol">✦</div>
       <span>KOŁO WYBRAŁO</span>
       <strong id="taskBig"></strong>
-      <button class="primary" id="doneTask">Bierzemy to!</button>
+      <div class="task-actions">
+        <button class="primary" id="doneTask" type="button">Robimy!</button>
+        <button class="ghost" id="spinAgain" type="button">Jeszcze raz</button>
+      </div>
     </div>
   </div>
 
   <template id="cardTpl">
     <article class="photo-card">
       <div class="photo-wrap"><img /></div>
-      <div class="card-body">
-        <div class="meta"><span class="aura"></span><span class="magic"></span></div>
-        <h3></h3>
-        <p class="comment"></p>
-        <small class="who"></small>
-      </div>
+      <div class="card-body"><div class="meta"><span class="aura"></span><span class="magic"></span></div><h3></h3><p class="comment"></p><small class="who"></small></div>
     </article>
   </template>
 
