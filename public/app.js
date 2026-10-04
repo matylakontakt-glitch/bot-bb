@@ -6,6 +6,13 @@ const uploadForm = document.getElementById("uploadForm");
 const photoInput = document.getElementById("photo");
 const fileLabel = document.getElementById("fileLabel");
 const statusEl = document.getElementById("status");
+const photoToast = document.getElementById("photoToast");
+const toastAuthor = document.getElementById("toastAuthor");
+const showNewest = document.getElementById("showNewest");
+const clientId = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+let newestCard = null;
+let toastTimer = null;
+
 
 document.getElementById("enterMagic").addEventListener("click",()=>{
   const welcome=document.getElementById("welcomeScreen");
@@ -23,35 +30,94 @@ document.getElementById("openUpload").onclick=()=>document.getElementById("uploa
 
 photoInput.addEventListener("change",()=>{fileLabel.textContent=photoInput.files?.[0]?.name||"Wybierz zdjęcie";});
 
+function trimGallery(){
+  const cards=[...galleryEl.children];
+  cards.slice(60).forEach(el=>el.remove());
+}
 function addCard(item,prepend=true){
   emptyEl.style.display="none";
   const node=tpl.content.cloneNode(true);
-  node.querySelector("img").src=item.url;
-  node.querySelector("img").alt=item.title;
+  const article=node.querySelector(".photo-card");
+  const img=node.querySelector("img");
+  img.src=item.url;
+  img.loading="lazy";
+  img.decoding="async";
+  img.alt=item.title;
   node.querySelector("h3").textContent=item.title;
   node.querySelector(".comment").textContent=item.comment;
   node.querySelector(".aura").textContent="✦ "+item.aura;
   node.querySelector(".magic").textContent="Magia "+item.magic+"/10";
   node.querySelector(".who").textContent="Dodane przez: "+item.nickname;
   prepend?galleryEl.prepend(node):galleryEl.append(node);
+  trimGallery();
+  newestCard = prepend ? galleryEl.firstElementChild : newestCard;
+  return article;
 }
-socket.on("gallery:init",items=>{galleryEl.innerHTML="";items.forEach(x=>addCard(x,false));if(!items.length)emptyEl.style.display="block";});
-socket.on("photo:new",item=>addCard(item,true));
+socket.on("gallery:init",items=>{
+  galleryEl.innerHTML="";
+  items.slice(0,60).forEach(x=>addCard(x,false));
+  if(!items.length)emptyEl.style.display="block";
+});
+socket.on("photo:new",item=>{
+  addCard(item,true);
+  if(item.clientId===clientId) return;
+  toastAuthor.textContent=(item.nickname && item.nickname!=="Tajemniczy Gość")
+    ? item.nickname+" dodał(a) nowe zdjęcie."
+    : "Ktoś właśnie dodał nowy kadr.";
+  photoToast.hidden=false;
+  requestAnimationFrame(()=>photoToast.classList.add("show"));
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{
+    photoToast.classList.remove("show");
+    setTimeout(()=>photoToast.hidden=true,250);
+  },6000);
+});
+showNewest.onclick=()=>{
+  photoToast.classList.remove("show");
+  setTimeout(()=>photoToast.hidden=true,220);
+  document.getElementById("gallerySection").scrollIntoView({behavior:"smooth"});
+  setTimeout(()=>newestCard?.scrollIntoView({behavior:"smooth",block:"center"}),450);
+};
 
+async function compressImage(file){
+  if(!file.type.startsWith("image/")) return file;
+  if(file.type==="image/gif") return file;
+  const bitmap=await createImageBitmap(file);
+  const maxSide=1600;
+  const scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement("canvas");
+  canvas.width=Math.round(bitmap.width*scale);
+  canvas.height=Math.round(bitmap.height*scale);
+  const ctx=canvas.getContext("2d",{alpha:false});
+  ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  bitmap.close?.();
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.82));
+  if(!blob) return file;
+  return new File([blob],(file.name.replace(/\.[^.]+$/,"")||"zdjecie")+".jpg",{type:"image/jpeg"});
+}
 uploadForm.addEventListener("submit",async e=>{
   e.preventDefault();
-  if(!photoInput.files[0])return;
-  const fd=new FormData(uploadForm);
-  statusEl.textContent="Kula analizuje energię zdjęcia… ✦";
+  const original=photoInput.files[0];
+  if(!original)return;
+  statusEl.textContent="Przygotowuję zdjęcie…";
   const btn=uploadForm.querySelector("button[type=submit]");
   btn.disabled=true;
   try{
+    const compressed=await compressImage(original);
+    const fd=new FormData();
+    fd.append("photo",compressed);
+    fd.append("nickname",uploadForm.elements.nickname?.value||"");
+    fd.append("clientId",clientId);
+    statusEl.textContent="Kula analizuje energię zdjęcia… ✦";
     const res=await fetch("/api/photos",{method:"POST",body:fd});
     if(!res.ok)throw new Error();
     uploadForm.reset();fileLabel.textContent="Wybierz zdjęcie";
     statusEl.textContent="Gotowe — kadr trafił do kroniki ✦";
-  }catch{statusEl.textContent="Nie udało się dodać zdjęcia. Spróbuj ponownie.";}
-  finally{btn.disabled=false;}
+  }catch{
+    statusEl.textContent="Nie udało się dodać zdjęcia. Spróbuj ponownie.";
+  }finally{
+    btn.disabled=false;
+  }
 });
 
 const whoQuestions=[
